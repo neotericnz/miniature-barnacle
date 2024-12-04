@@ -1,17 +1,17 @@
 graph TD
-    %% Group Definitions
+    %% Define Groups
     subgraph Azure
         subgraph Networking
             AKS[Immuta Application (AKS)]
             PostgreSQL[Metadata Database (PostgreSQL)]
             Elasticsearch[Elasticsearch (ISV)]
             Blob[Blob Storage]
-            NSG[Network Security Groups (NSGs)]
+            NSGs[Network Security Groups]
         end
         
         subgraph Security
             AAD[Azure AD]
-            KeyVault[Key Vault]
+            KeyVault[Azure Key Vault]
             WAF[App Gateway with WAF]
         end
         
@@ -21,14 +21,14 @@ graph TD
         end
     end
 
-    subgraph Snowflake
+    subgraph Snowflake and Users
         Snowflake[Snowflake]
         DataConsumers[Data Consumers]
     end
 
     ImmutaAdmins[Immuta Admins]
-    
-    %% Connections
+
+    %% Define Connections
     AAD --> ImmutaAdmins : "Authenticates"
     AAD --> DataConsumers : "Authenticates"
     ImmutaAdmins --> AKS : "Manage Policies"
@@ -45,5 +45,5 @@ graph TD
 
     Monitor --> AKS : "Collects Logs"
     Monitor --> Defender : "Analyzes Threats"
-    NSG --> Blob : "Restricts Traffic"
-    NSG --> Snowflake : "Restricts Access"
+    NSGs --> Blob : "Restricts Traffic"
+    NSGs --> Snowflake : "Restricts Access"
