@@ -1,41 +1,54 @@
 graph TD
-    %% Networking Components
-    AKS[Immuta Application (AKS)]
-    PostgreSQL[Metadata Database (PostgreSQL)]
-    Elasticsearch[Elasticsearch (ISV)]
-    Blob[Blob Storage]
-    NSGs[Network Security Groups]
+    %% Title %%
+    A[Immuta Platform on Azure - Deployment Diagram with Microsoft Defender]
 
-    %% Security Components
-    AAD[Azure AD]
-    KeyVault[Azure Key Vault]
-    WAF[App Gateway with WAF]
+    %% Azure Nodes %%
+    subgraph Azure
+        subgraph Networking
+            VNet1[Immuta VNet]
+            AKS[Immuta Application AKS]
+            PostgreSQL[Metadata Database PostgreSQL]
+            Elastic[Elasticsearch ISV]
 
-    %% Monitoring Components
-    Monitor[Azure Monitor]
-    Defender[Microsoft Defender]
+            VNet2[Shared Services VNet]
+            Blob[Blob Storage]
+            NSG[Network Security Groups NSGs]
+        end
 
-    %% Snowflake and Users
-    Snowflake[Snowflake]
-    DataConsumers[Data Consumers]
+        subgraph Security
+            AAD[Azure AD]
+            KeyVault[Key Vault]
+            WAF[App Gateway with WAF]
+        end
+
+        subgraph Monitoring_and_Threat_Protection
+            Monitor[Azure Monitor]
+            Defender[Microsoft Defender]
+        end
+    end
+
+    %% Snowflake and Users %%
+    subgraph Snowflake_and_Data_Consumers
+        Snowflake[Snowflake]
+        DataConsumers[Data Consumers]
+    end
+
     ImmutaAdmins[Immuta Admins]
 
-    %% Connections
-    AAD --> ImmutaAdmins : "Authenticates"
-    AAD --> DataConsumers : "Authenticates"
-    ImmutaAdmins --> AKS : "Manage Policies"
+    %% Relationships %%
+    AAD --> ImmutaAdmins
+    AAD --> DataConsumers
+    ImmutaAdmins --> AKS
+    AAD --> AKS
+    KeyVault --> AKS
+    WAF --> AKS
 
-    AAD --> AKS : "Authenticates"
-    KeyVault --> AKS : "Secures Secrets"
-    WAF --> AKS : "Routes Secure Traffic"
+    AKS --> PostgreSQL
+    AKS --> Elastic
+    AKS --> Blob
+    AKS --> Snowflake
+    Snowflake --> DataConsumers
 
-    AKS --> PostgreSQL : "Policy Queries"
-    AKS --> Elasticsearch : "Metadata Indexing"
-    AKS --> Blob : "Stores Configurations"
-    AKS --> Snowflake : "Applies Policies"
-    Snowflake --> DataConsumers : "Access Datasets"
-
-    Monitor --> AKS : "Collects Logs"
-    Monitor --> Defender : "Analyzes Threats"
-    NSGs --> Blob : "Restricts Traffic"
-    NSGs --> Snowflake : "Restricts Access"
+    Monitor --> AKS
+    Monitor --> Defender
+    NSG --> Blob
